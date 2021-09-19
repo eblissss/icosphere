@@ -1,0 +1,42 @@
+body {
+  font-family: Tahoma, sans-serif;
+  text-align: center;
+  color: whitesmoke;
+  background-color: #222;
+}
+
+#title {
+  position: absolute;
+  left: 50%;
+  top: 0%;
+  transform: translateX(-50%);
+}
+
+#glCanvas {
+  z-index: 10;
+  border: 5px solid;
+  border-image: radial-gradient(black, #222) 1;
+  border-top: #222;
+}
+
+#subdivisions {
+  position: absolute;
+  left: calc(50% + 270px);
+  top: 55px;
+}
+
+#triangles {
+  position: absolute;
+  left: calc(50% + 240px);
+  top: 15px;
+}
+
+#color {
+  position: absolute;
+  left: calc(50% - 440px);
+  top: 700px;
+}
+
+.far {
+  z-index: -1;
+}

@@ -1,0 +1,116 @@
+Alternate method that ultimately was not easily scalable
+Placed here to be referenced in the future to create a UV sphere
+
+
+icoPosTop.push([0, 1, 0]); // Top     - Index 0
+
+  const psi = Math.PI / 2 - Math.atan(1 / 2);
+
+  for (let i = 0; i < 5; i++) {
+    // Circle 2 - Index 1 - 5
+    let theta = (2 / 5) * Math.PI * i;
+    icoPosTop.push([
+      Math.sin(psi) * Math.cos(theta),
+      Math.cos(psi),
+      Math.sin(psi) * Math.sin(theta),
+    ]);
+  }
+
+
+function subdivideIco(icoPosTop) {
+  const highPsi = Math.PI / 2 - (Math.PI / 2 + Math.atan(1 / 2)) / 2;
+  const sideOffset = Math.PI / 5;
+
+  for (let i = 0; i < 5; i++) {
+    // Circle 1 - Index 6 - 10
+    let theta = (2 / 5) * Math.PI * i;
+    icoPosTop.push([
+      Math.sin(highPsi) * Math.cos(theta),
+      Math.cos(highPsi),
+      Math.sin(highPsi) * Math.sin(theta),
+    ]);
+  }
+
+  const psi = Math.PI / 2 - Math.atan(1 / 2);
+
+  for (let i = 0; i < 5; i++) {
+    // Circle 3 (z=2) - Index 11 - 15
+    let theta = (2 / 5) * Math.PI * i + sideOffset;
+    icoPosTop.push([
+      Math.sin(psi) * Math.cos(theta),
+      Math.cos(psi),
+      Math.sin(psi) * Math.sin(theta),
+    ]);
+  }
+
+  const offset = (2 / 20) * Math.PI;
+  const middlePsi = Math.PI / 2;
+
+  for (let i = 0; i < 10; i++) {
+    // Circle 4  - Index 16 - 25
+    let theta = (2 / 10) * Math.PI * i + offset;
+    icoPosTop.push([
+      Math.sin(middlePsi) * Math.cos(theta),
+      Math.cos(middlePsi),
+      Math.sin(middlePsi) * Math.sin(theta),
+    ]);
+  }
+
+  return icoPosTop;
+}
+
+
+  let icoPos = [];
+  for (let i = 0; i < icoPosTop.length; i++) {
+    icoPos.push(icoPosTop[i]);
+    icoPos.push([-icoPosTop[i][0], -icoPosTop[i][1], -icoPosTop[i][2]]);
+  }
+//console.log(icoPos);
+
+
+// Generate indices (order to draw verts)
+function generateIndices(programInfo, icoPos, subdivisions) {
+  // Generate indices to draw faces
+  let indices = [];
+  const vIndex1 = [2, 4, 6, 8, 10, 2];
+  const vIndex2 = [3, 5, 7, 9, 11, 3];
+  const vIndex3 = [2, 9, 4, 11, 6, 3, 8, 5, 10, 7, 2, 9];
+  for (let i = 0; i < 5; i++) {
+    indices.push([0, vIndex1[i], vIndex1[i + 1]]);
+    indices.push([1, vIndex2[i], vIndex2[i + 1]]);
+    indices.push([vIndex3[i * 2], vIndex3[i * 2 + 1], vIndex3[i * 2 + 2]]);
+    indices.push([vIndex3[i * 2 + 1], vIndex3[i * 2 + 2], vIndex3[i * 2 + 3]]);
+  }
+
+  const vIndex1 = [12, 14, 16, 18, 20, 12];
+  const vIndex2 = [
+    2, 12, 22, 4, 14, 24, 6, 16, 26, 8, 18, 28, 10, 20, 30, 2, 12,
+  ];
+  const vIndex3 = [
+    2, 32, 22, 34, 4, 36, 24, 38, 6, 40, 26, 42, 8, 44, 28, 46, 10, 48, 30, 50,
+    2, 32,
+  ];
+  for (let i = 0; i < 5; i++) {
+    indices.push([0, vIndex1[i], vIndex1[i + 1]]);
+  }
+  for (let i = 0; i < 15; i += 3) {
+    indices.push([vIndex2[i], vIndex2[i + 2], vIndex2[i + 1]]);
+    indices.push([vIndex2[i + 2], vIndex2[i + 4], vIndex2[i + 1]]);
+    indices.push([vIndex2[i + 2], vIndex2[i + 3], vIndex2[i + 4]]);
+  }
+  for (let i = 0; i < 20; i += 2) {
+    indices.push([vIndex3[i], vIndex3[i + 1], vIndex3[i + 2]]);
+    indices.push([vIndex3[i + 2], vIndex3[i + 1], vIndex3[i + 3]]);
+  }
+
+  // Create element (index) buffer
+  const eleBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, eleBuffer);
+  gl.bufferData(
+    gl.ELEMENT_ARRAY_BUFFER,
+    new Int16Array(indices.flat()),
+    gl.STATIC_DRAW
+  );
+
+  return indices.length;
+}
